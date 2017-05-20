@@ -313,9 +313,14 @@ public class SeznamCokov extends AppCompatActivity {
         posljiMailDobavnico.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //naredi pdf al nekaj, z glavo vred in prikazSeznama
+                //odpri izbor za posiljanje XLSja
 
-                createAndSendXLSFile(ListOfLogs.parseList(hlodi));
+
+                Intent intent = new Intent(SeznamCokov.this, PosiljanjeMaila.class);
+                //podatki po seznamih
+                intent.putStringArrayListExtra(MainActivity.SEZNAM_COKOV,hlodi);
+                Log.d(LOG_TAG,"Šaljem elementov stevilo"+hlodi.size());
+                startActivityForResult(intent,PRINTANJE_INTENT);
             }
         });
 
@@ -342,125 +347,10 @@ public class SeznamCokov extends AppCompatActivity {
 
 
 
-    private void createAndSendXLSFile(ListOfLogs seznamZaPosiljanje)
-    {
-        if(isExternalStorageReadable() && isExternalStorageWritable()) {
-            Calendar fileCreateTime = new GregorianCalendar();
-            fileCreateTime.setTimeInMillis(System.currentTimeMillis());
-            String dateTimeString = fileCreateTime.get(Calendar.DAY_OF_MONTH) + "-" +
-                    fileCreateTime.get(Calendar.MONTH) + "-" +
-                    fileCreateTime.get(Calendar.YEAR) + "-" +
-                    fileCreateTime.get(Calendar.HOUR) + ":" +
-                    fileCreateTime.get(Calendar.MINUTE);
-
-            System.out.println("Seznamcic ima elementov " + seznamZaPosiljanje.kubiki.size());
-
-            HSSFWorkbook workbook = new HSSFWorkbook();
-            HSSFSheet sheet = workbook.createSheet("Dobavnica");
-
-            Map<String, Object[]> data = new HashMap<String, Object[]>();
-
-
-            data.put("1", new Object[]{"Dobavnica", dateTimeString});
-            data.put("2", new Object[]{" ","Sorta", "Klasa", "Dolžina (m)", "Premer (cm)", "Volumen (m3)"});
-
-            for (int i = 0; i < seznamZaPosiljanje.kubiki.size(); i++) {
-                data.put((i + 3)+ "", new Object[]{i + 1, seznamZaPosiljanje.sorte.get(i), seznamZaPosiljanje.klase.get(i), seznamZaPosiljanje.dolzine.get(i), seznamZaPosiljanje.premeri.get(i), seznamZaPosiljanje.kubiki.get(i)});
-            }
-
-            Set<String> keyset = data.keySet();
-            int rownum = 0;
-            for (String key : keyset) {
-                Row row = sheet.createRow(rownum++);
-                Object[] objArr = data.get(key);
-                int cellnum = 0;
-                for (Object obj : objArr) {
-                    Cell cell = row.createCell(cellnum++);
-                    if (obj instanceof Date)
-                        cell.setCellValue((Date) obj);
-                    else if (obj instanceof Boolean)
-                        cell.setCellValue((Boolean) obj);
-                    else if (obj instanceof String)
-                        cell.setCellValue((String) obj);
-                    else if (obj instanceof Double)
-                        cell.setCellValue((Double) obj);
-                }
-            }
-
-
-            File noviXLS = new File(getApplicationContext().getFilesDir(), "dobavnica-" + dateTimeString + ".xls");
-            //File noviXLS = new File(getStorageDir("excel"), );
-
-            try {
-
-                FileOutputStream out =
-                        new FileOutputStream(noviXLS);
-                workbook.write(out);
-                out.close();
-
-                System.out.println(noviXLS.getAbsolutePath());
-                Toast.makeText(getApplicationContext(), "Excel datoteka kreirana", Toast.LENGTH_SHORT).show();
-
-
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-
-            InputStream in = null;
-            OutputStream out = null;
-            try {
-                in = new FileInputStream(noviXLS);
-                out = new FileOutputStream(new File(Environment.getExternalStorageDirectory(), "dobavnica-" + dateTimeString + ".xls"));
-                copyFile(in, out);
-                in.close();
-                in = null;
-                out.flush();
-                out.close();
-                out = null;
-            } catch (Exception e) {
-                Log.e("tag", e.getMessage());
-                e.printStackTrace();
-            }
-
-
-            //Send the file
-            Intent emailIntent = new Intent(Intent.ACTION_SEND);
-            emailIntent.setType("text/html");
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Dobavnica "+ dateTimeString);
-            emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{"m.krebelj@gmail.com"});
-            emailIntent.putExtra(Intent.EXTRA_TEXT, "V priponki je avtomatsko generirana dobavnica");
-            Uri uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "dobavnica-" + dateTimeString + ".xls"));
-            emailIntent.putExtra(Intent.EXTRA_STREAM, uri);
-            startActivity(Intent.createChooser(emailIntent, "Izberi poštnega odjemalca"));
-
-
-        }
-        else
-            Toast.makeText(getApplicationContext(),"Jok brate, nemozem da pisem ili berem bre",Toast.LENGTH_SHORT).show();
-    }
 
 
 
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
-    }
 
-    /* Checks if external storage is available to at least read */
-    public boolean isExternalStorageReadable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
-    }
 
     public File getStorageDir(String dirName) {
 
@@ -473,13 +363,7 @@ public class SeznamCokov extends AppCompatActivity {
 
     }
 
-    private void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
-        int read;
-        while ((read = in.read(buffer)) != -1) {
-            out.write(buffer, 0, read);
-        }
-    }
+
     private static final int REQUEST_EXTERNAL_STORAGE = 1;
     private static final int MY_PERMISSIONS_REQUEST_BT = 2;
 
@@ -528,57 +412,6 @@ public class SeznamCokov extends AppCompatActivity {
     }
 
 
-    //za printanje
-    private WebView mWebView;
-    private void printajDobavnico(){
-        // Create a WebView object specifically for printing
-        WebView webView = new WebView(this);
-        webView.setWebViewClient(new WebViewClient() {
-
-            public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                return false;
-            }
-
-            @Override
-            public void onPageFinished(WebView view, String url) {
-                Log.i(LOG_TAG, "page finished loading " + url);
-                createWebPrintJob(view);
-                mWebView = null;
-            }
-        });
-
-        // Generate an HTML document on the fly:
-        String htmlDocument = "<html><body><h1>Dobavnica</h1>";
-
-        for (String h : hlodi){
-            htmlDocument = htmlDocument+" <p>" +h+"</p>";
-        }
-        htmlDocument = htmlDocument+"</body></html>";
-
-        webView.loadDataWithBaseURL(null, htmlDocument, "text/HTML", "UTF-8", null);
-
-        // Keep a reference to WebView object until you pass the PrintDocumentAdapter
-        // to the PrintManager
-        mWebView = webView;
-    }
-
-    private void createWebPrintJob(WebView webView) {
-
-        // Get a PrintManager instance
-        PrintManager printManager = (PrintManager) this
-                .getSystemService(Context.PRINT_SERVICE);
-
-        // Get a print adapter instance
-        PrintDocumentAdapter printAdapter = webView.createPrintDocumentAdapter();
-
-        // Create a print job with name and adapter instance
-        String jobName = getString(R.string.app_name) + " Document";
-        PrintJob printJob = printManager.print(jobName, printAdapter,
-                new PrintAttributes.Builder().build());
-
-        // Save the job object for later status checking
-        //mPrintJobs.add(printJob);
-    }
 
 
     @Override

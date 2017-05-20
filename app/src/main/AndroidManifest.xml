@@ -36,10 +36,9 @@
                 android:value="com.example.matejk.cwaki.MainActivity" />
         </activity>
         <activity
-            android:screenOrientation="portrait"
             android:name=".Printanje"
-            android:label="Printanje">
-        </activity>
+            android:label="Printanje"
+            android:screenOrientation="portrait"></activity>
         <activity
             android:name=".DeviceListActivity"
             android:configChanges="orientation|keyboardHidden"
@@ -49,12 +48,14 @@
             android:name=".SorteCene"
             android:label="@string/title_activity_sorte_cene"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"
-            android:screenOrientation="portrait">
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.matejk.cwaki.MainActivity" />
         </activity>
+        <activity android:name=".PosiljanjeMaila"
+            android:screenOrientation="portrait"></activity>
     </application>
 
 </manifest>

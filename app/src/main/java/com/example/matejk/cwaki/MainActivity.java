@@ -48,6 +48,12 @@ public class MainActivity extends Activity {
    // private ListView seznamHlodov;
     private ArrayList<String> hlodi;
 
+
+    //da deluje parsanje
+    DecimalFormatSymbols otherSymbols;
+
+    DecimalFormat df;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,6 +83,11 @@ public class MainActivity extends Activity {
 
 
     private void init(){
+
+        otherSymbols = new DecimalFormatSymbols(getResources().getConfiguration().locale);
+        otherSymbols.setDecimalSeparator('.');
+        otherSymbols.setGroupingSeparator(',');
+        df = new DecimalFormat("0.00", otherSymbols);
 
         zadnjiVnos = (TextView) findViewById(R.id.tzadnjiVnos) ;
 
@@ -515,11 +526,7 @@ public class MainActivity extends Activity {
         Double r = getR();
         Double l = getL();
         if(sorta.getSelectedItem() != null && r > 0 && l > 0) {
-            //da deluje parsanje
-            DecimalFormatSymbols otherSymbols = new DecimalFormatSymbols(getResources().getConfiguration().locale);
-            otherSymbols.setDecimalSeparator('.');
-            otherSymbols.setGroupingSeparator(',');
-            DecimalFormat df = new DecimalFormat("0.00", otherSymbols);
+
             //DecimalFormat df = new DecimalFormat("0.00");
             String volumen = df.format(Math.PI * Math.pow(r, 2) * l) + "";
             hlodi.add(((String) sorta.getSelectedItem()) + " " + klasa + " " + df.format(l) + " m, " + df.format(r * 2 * 100) + " cm, " + volumen + " m3");

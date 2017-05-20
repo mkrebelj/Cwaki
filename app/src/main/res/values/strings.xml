@@ -5,7 +5,7 @@
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="printaj_dobavnico">Printaj dobavnico</string>
-    <string name="poslji_mail">Pošlji dobavnico</string>
+    <string name="poslji_mail">Pošlji na mail</string>
     <string name="mail">Mail</string>
     <string name="title_activity_settings_cwaki">Nastavitve</string>
     <string name="preference_file_key">com.cwaki.kristaboga</string>
@@ -18,8 +18,11 @@
     <string name="saved_kupecNaziv">knaziv</string>
     <string name="saved_kupecNaslov1">knaslov1</string>
     <string name="saved_kupecNaslov2">knaslov2</string>
+    <string name="saved_stevilkaDobavnice">stdob</string>
     <string name="saved_sorten">shranjenesorte</string>
     <string name="nastavitve_cwaki">skupnenastavitve</string>
+    <string name="button_yes">Da</string>
+    <string name="button_no">Ne</string>
 
     <string name="hello">Hello World, BloothPrinterActivity!</string>
     <string name="connect_bluetooth_device_btn">connect a bluetooth device</string>
